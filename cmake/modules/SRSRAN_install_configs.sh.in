@@ -16,7 +16,7 @@ then
   echo "Please call script with either user or service as first parameter."
   echo ""
   echo "E.g. ./srsran_install_configs.sh user"
-  echo " .. to install all config files to $HOME/.config/srsran"
+  echo " .. to install all config files to $HOME/.config/srsran_23_04_1"
   echo ""
   echo "E.g. ./srsran_install_configs.sh service"
   echo " .. to install all config files to /etc/srsran"
@@ -25,7 +25,7 @@ fi
 
 if [ "$1" == "user" ]
 then
-  dest_folder="$HOME/.config/srsran"
+  dest_folder="$HOME/.config/srsran_23_04_1"
 elif [ "$1" == "service" ]
 then
   dest_folder="/etc/srsran"

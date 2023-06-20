@@ -43,7 +43,7 @@ bool config_exists(std::string& filename, std::string default_name)
     if (!homedir) {
       homedir = ".";
     }
-    snprintf(full_path, sizeof(full_path), "%s/.config/srsran/%s", homedir, default_name.c_str());
+    snprintf(full_path, sizeof(full_path), "%s/.config/srsran_23_04_1/%s", homedir, default_name.c_str());
     printf("Couldn't open %s, trying %s\n", filename.c_str(), full_path);
     filename = std::string(full_path);
 

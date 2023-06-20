@@ -3,4 +3,4 @@ Type: boolean
 Default: true
 Description: Install configs?
  This installs the default srsRAN configuration files to the user's
- home directory (~/.config/srsran) but keeps any existing config files.
+ home directory (~/.config/srsran_23_04_1) but keeps any existing config files.
