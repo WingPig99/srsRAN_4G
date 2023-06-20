@@ -165,7 +165,7 @@ void pdcp_entity_lte::write_sdu(unique_byte_buffer_t sdu, int upper_sn)
   if (upper_sn == -1) {
     used_sn = st.next_pdcp_tx_sn; // Normal scenario
   } else {
-    used_sn = upper_sn; // SN provided by the upper layers, due to handover.
+    used_sn = upper_sn;           // SN provided by the upper layers, due to handover.
   }
 
   uint32_t tx_count = COUNT(st.tx_hfn, used_sn); // Normal scenario
@@ -198,6 +198,15 @@ void pdcp_entity_lte::write_sdu(unique_byte_buffer_t sdu, int upper_sn)
     integrity_generate(sdu->msg, sdu->N_bytes, tx_count, mac);
   }
 
+  if (p_pcap != nullptr) {
+    // discard header and mac
+    if (cfg.tx_direction == SECURITY_DIRECTION_UPLINK) {
+      p_pcap->write_ul_pdcp(0x00, lcid, tx_count, sdu->msg + cfg.hdr_len_bytes, sdu->N_bytes - cfg.hdr_len_bytes);
+    } else {
+      p_pcap->write_dl_pdcp(0x00, lcid, tx_count, sdu->msg + cfg.hdr_len_bytes, sdu->N_bytes - cfg.hdr_len_bytes);
+    }
+  }
+
   if (is_srb()) {
     append_mac(sdu, mac);
   }
@@ -214,6 +223,14 @@ void pdcp_entity_lte::write_sdu(unique_byte_buffer_t sdu, int upper_sn)
               used_sn,
               srsran_direction_text[integrity_direction],
               srsran_direction_text[encryption_direction]);
+
+  if (e_pcap != nullptr) {
+    if (cfg.tx_direction == SECURITY_DIRECTION_UPLINK) {
+      e_pcap->write_ul_pdcp(0x00, lcid, tx_count, sdu->msg, sdu->N_bytes);
+    } else {
+      e_pcap->write_dl_pdcp(0x00, lcid, tx_count, sdu->msg, sdu->N_bytes);
+    }
+  }
 
   // Set SDU metadata for RLC AM
   sdu->md.pdcp_sn = used_sn;
@@ -280,6 +297,14 @@ void pdcp_entity_lte::write_pdu(unique_byte_buffer_t pdu)
   // Update metrics
   metrics.num_rx_pdus++;
   metrics.num_rx_pdu_bytes += pdu->N_bytes;
+
+  if (e_pcap != nullptr) {
+    if (cfg.rx_direction == SECURITY_DIRECTION_UPLINK) {
+      e_pcap->write_ul_pdcp(0x00, lcid, sn, pdu->msg, pdu->N_bytes);
+    } else {
+      e_pcap->write_dl_pdcp(0x00, lcid, sn, pdu->msg, pdu->N_bytes);
+    }
+  }
 
   if (is_srb()) {
     handle_srb_pdu(std::move(pdu));
@@ -351,6 +376,14 @@ void pdcp_entity_lte::handle_srb_pdu(srsran::unique_byte_buffer_t pdu)
   // Discard header
   discard_data_header(pdu);
 
+  if (p_pcap != nullptr) {
+    if (cfg.rx_direction == SECURITY_DIRECTION_UPLINK) {
+      p_pcap->write_ul_pdcp(0x00, lcid, sn, pdu->msg, pdu->N_bytes);
+    } else {
+      p_pcap->write_dl_pdcp(0x00, lcid, sn, pdu->msg, pdu->N_bytes);
+    }
+  }
+
   // Update state variables
   if (sn < st.next_pdcp_rx_sn) {
     st.rx_hfn++;
@@ -387,6 +420,14 @@ void pdcp_entity_lte::handle_um_drb_pdu(srsran::unique_byte_buffer_t pdu)
   if (st.next_pdcp_rx_sn > maximum_pdcp_sn) {
     st.next_pdcp_rx_sn = 0;
     st.rx_hfn++;
+  }
+
+  if (p_pcap != nullptr) {
+    if (cfg.rx_direction == SECURITY_DIRECTION_UPLINK) {
+      p_pcap->write_ul_pdcp(0x00, lcid, sn, pdu->msg, pdu->N_bytes);
+    } else {
+      p_pcap->write_dl_pdcp(0x00, lcid, sn, pdu->msg, pdu->N_bytes);
+    }
   }
 
   // Pass to upper layers
@@ -452,6 +493,14 @@ void pdcp_entity_lte::handle_am_drb_pdu(srsran::unique_byte_buffer_t pdu)
 
   // Store Rx SN/COUNT
   update_rx_counts_queue(count);
+
+  if (p_pcap != nullptr) {
+    if (cfg.rx_direction == SECURITY_DIRECTION_UPLINK) {
+      p_pcap->write_ul_pdcp(0x00, lcid, sn, pdu->msg, pdu->N_bytes);
+    } else {
+      p_pcap->write_dl_pdcp(0x00, lcid, sn, pdu->msg, pdu->N_bytes);
+    }
+  }
 
   // Pass to upper layers
   gw->write_pdu(lcid, std::move(pdu));

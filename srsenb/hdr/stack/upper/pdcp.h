@@ -20,6 +20,7 @@
  */
 
 #include "srsenb/hdr/common/rnti_pool.h"
+#include "srsran/common/pdcp_pcap.h"
 #include "srsran/common/timers.h"
 #include "srsran/interfaces/enb_metrics_interface.h"
 #include "srsran/interfaces/enb_pdcp_interfaces.h"
@@ -71,6 +72,9 @@ public:
 
   // pdcp_interface_gtpu
   std::map<uint32_t, srsran::unique_byte_buffer_t> get_buffered_pdus(uint16_t rnti, uint32_t lcid) override;
+
+  void start_e_pcap(srsran::pdcp_pcap* e_pcap);
+  void start_p_pcap(srsran::pdcp_pcap* p_pcap);
 
   // Metrics
   void get_metrics(pdcp_metrics_t& m, const uint32_t nof_tti);
@@ -132,6 +136,10 @@ private:
   gtpu_interface_pdcp*      gtpu = nullptr;
   srsran::task_sched_handle task_sched;
   srslog::basic_logger&     logger;
+
+  // PCAP
+  srsran::pdcp_pcap* e_pcap = nullptr;
+  srsran::pdcp_pcap* p_pcap = nullptr;
 };
 
 } // namespace srsenb

@@ -117,6 +117,18 @@ int enb_stack_lte::init(const stack_args_t&      args_,
     s1ap.start_pcap(&s1ap_pcap);
   }
 
+  if (args.pdcp_e_pcap.enable) {
+    pdcp_e_pcap.open(args.pdcp_e_pcap.filename.c_str());
+    pdcp.start_e_pcap(&pdcp_e_pcap);
+  }
+
+  if (args.pdcp_p_pcap.enable) {
+    pdcp_p_pcap.open(args.pdcp_p_pcap.filename.c_str());
+    pdcp.start_p_pcap(&pdcp_p_pcap);
+  }
+
+  // TODO: save GW packet
+
   // add sync queue
   sync_task_queue = task_sched.make_task_queue(args.sync_queue_size);
 
@@ -204,6 +216,18 @@ void enb_stack_lte::stop_impl()
 
   if (args.s1ap_pcap.enable) {
     s1ap_pcap.close();
+  }
+
+  if (args.pdcp_e_pcap.enable) {
+    pdcp_e_pcap.close();
+  }
+
+  if (args.pdcp_p_pcap.enable) {
+    pdcp_p_pcap.close();
+  }
+
+  if (args.gw_pcap.enable) {
+    gw_pcap.close();
   }
 
   task_sched.stop();

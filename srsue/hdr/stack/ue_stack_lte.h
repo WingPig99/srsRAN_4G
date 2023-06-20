@@ -32,6 +32,7 @@
 #include "rrc_nr/rrc_nr.h"
 #include "srsran/common/bearer_manager.h"
 #include "srsran/common/buffer_pool.h"
+#include "srsran/common/gw_pcap.h"
 #include "srsran/common/multiqueue.h"
 #include "srsran/common/string_helpers.h"
 #include "srsran/common/task_scheduler.h"
@@ -228,9 +229,12 @@ private:
   srslog::basic_logger& pdcp_nr_logger;
 
   // tracing
-  srsran::mac_pcap mac_pcap;
-  srsran::mac_pcap mac_nr_pcap;
-  srsran::nas_pcap nas_pcap;
+  srsran::mac_pcap  mac_pcap;
+  srsran::mac_pcap  mac_nr_pcap;
+  srsran::nas_pcap  nas_pcap;
+  srsran::pdcp_pcap pdcp_e_pcap;
+  srsran::pdcp_pcap pdcp_p_pcap;
+  srsran::gw_pcap   gw_pcap;
 
   // RAT-specific interfaces
   phy_interface_stack_lte* phy    = nullptr;

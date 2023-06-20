@@ -76,6 +76,9 @@ typedef struct {
   pcap_args_t      mac_pcap;
   pcap_net_args_t  mac_pcap_net;
   pcap_args_t      s1ap_pcap;
+  pcap_args_t      pdcp_e_pcap;
+  pcap_args_t      pdcp_p_pcap;
+  pcap_args_t      gw_pcap;
   stack_log_args_t log;
   embms_args_t     embms;
 } stack_args_t;

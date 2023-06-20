@@ -32,11 +32,11 @@ FILE* DLT_PCAP_Open(uint32_t DLT, const char* fileName)
   pcap_hdr_t file_header = {
       0xa1b2c3d4, /* magic number */
       2,
-      4,     /* version number is 2.4 */
-      0,     /* timezone */
-      0,     /* sigfigs - apparently all tools do this */
-      65535, /* snaplen - this should be long enough */
-      DLT    /* Data Link Type (DLT).  Set as unused value 147 for now */
+      4,          /* version number is 2.4 */
+      0,          /* timezone */
+      0,          /* sigfigs - apparently all tools do this */
+      65535,      /* snaplen - this should be long enough */
+      DLT         /* Data Link Type (DLT).  Set as unused value 147 for now */
   };
 
   FILE* fd = fopen(fileName, "w");
@@ -478,6 +478,113 @@ int NR_PCAP_MAC_UDP_WritePDU(FILE* fd, mac_nr_context_info_t* context, const uns
   fwrite(&packet_header, sizeof(pcaprec_hdr_t), 1, fd);
   fwrite(context_header, 1, offset, fd);
   fwrite(PDU, 1, length, fd);
+
+  return 1;
+}
+
+/* Write an idividual PDCP PDU (PCAP packet header + pdcp-context + PDCP-pdu) */
+int PCAP_PDCP_Write_PDU(FILE* fd, PDCP_Context_Info_t* context, const unsigned char* PDU, unsigned int length)
+{
+  uint8_t  context_header[PCAP_CONTEXT_HEADER_MAX] = {};
+  int      offset                                  = 0;
+  uint16_t tmp16;
+  int32_t  tmp32;
+
+  pcaprec_hdr_t packet_header;
+
+  /* Can't write if file wasn't successfully opened */
+  if (fd == NULL) {
+    printf("Error: Can't write to empty file handle\n");
+    return 0;
+  }
+
+  // context
+  // rnti
+  tmp16 = htons(context->rnti);
+  memcpy(context_header + offset, &tmp16, 2);
+  offset += 2;
+  // direction
+  context_header[offset++] = context->direction;
+  // channelId
+  tmp16 = htons(context->channelId);
+  memcpy(context_header + offset, &tmp16, 2);
+  offset += 2;
+  // sn
+  tmp32 = htonl(context->sn);
+  memcpy(context_header + offset, &tmp32, 4);
+  offset += 4;
+  // Length
+  tmp16 = htons(length);
+  memcpy(context_header + offset, &tmp16, 2);
+  offset += 2;
+
+  /****************************************************************/
+  /* PCAP Header                                                  */
+  struct timeval t;
+  gettimeofday(&t, NULL);
+  packet_header.ts_sec   = t.tv_sec;
+  packet_header.ts_usec  = t.tv_usec;
+  packet_header.incl_len = offset + length;
+  packet_header.orig_len = offset + length;
+
+  /***************************************************************/
+  /* Now write everything to the file                            */
+  fwrite(&packet_header, sizeof(pcaprec_hdr_t), 1, fd);
+  fwrite(&context_header, 1, offset, fd);
+  fwrite(PDU, 1, length, fd);
+  fflush(fd);
+
+  return 1;
+}
+
+/* Write an idividual GW(IP) PDU (PCAP packet header + gw-context + gw-pdu) */
+int PCAP_GW_Write_PDU(FILE* fd, GW_Context_Info_t* context, const unsigned char* PDU, unsigned int length)
+{
+  uint8_t  context_header[PCAP_CONTEXT_HEADER_MAX] = {};
+  int      offset                                  = 0;
+  uint16_t tmp16;
+  int32_t  tmp32;
+
+  pcaprec_hdr_t packet_header;
+
+  /* Can't write if file wasn't successfully opened */
+  if (fd == NULL) {
+    printf("Error: Can't write to empty file handle\n");
+    return 0;
+  }
+
+  // context
+  // rnti
+  tmp16 = htons(context->rnti);
+  memcpy(context_header + offset, &tmp16, 2);
+  offset += 2;
+  // direction
+  context_header[offset++] = context->direction;
+  // channelId
+  tmp16 = htons(context->channelId);
+  memcpy(context_header + offset, &tmp16, 2);
+  offset += 2;
+  // dataType
+  context_header[offset++] = context->dataType;
+  // sn
+  tmp32 = htonl(context->sn);
+  memcpy(context_header + offset, &tmp32, 4);
+  offset += 4;
+
+  /****************************************************************/
+  /* PCAP Header                                                  */
+  struct timeval t;
+  gettimeofday(&t, NULL);
+  packet_header.ts_sec   = t.tv_sec;
+  packet_header.ts_usec  = t.tv_usec;
+  packet_header.incl_len = length;
+  packet_header.orig_len = length;
+
+  /***************************************************************/
+  /* Now write everything to the file                            */
+  fwrite(&packet_header, sizeof(pcaprec_hdr_t), 1, fd);
+  fwrite(PDU, 1, length, fd);
+  fflush(fd);
 
   return 1;
 }

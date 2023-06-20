@@ -160,10 +160,18 @@ int ue_stack_lte::init(const stack_args_t& args_)
       args.pkt_trace.mac_nr_pcap.enable = true;
     } else if (pcap == "nas" || pcap == "NAS") {
       args.pkt_trace.nas_pcap.enable = true;
+    } else if (pcap == "pdcp" || pcap == "PDCP") {
+      args.pkt_trace.pdcp_e_pcap.enable = true;
+      args.pkt_trace.pdcp_p_pcap.enable = true;
+    } else if (pcap == "GW" || pcap == "gw") {
+      args.pkt_trace.gw_pcap.enable = true;
     } else if (pcap == "none" || pcap == "NONE") {
       args.pkt_trace.mac_pcap.enable    = false;
       args.pkt_trace.mac_nr_pcap.enable = false;
       args.pkt_trace.mac_nr_pcap.enable = false;
+      args.pkt_trace.pdcp_e_pcap.enable = false;
+      args.pkt_trace.pdcp_p_pcap.enable = false;
+      args.pkt_trace.gw_pcap.enable     = false;
     } else {
       stack_logger.error("Unknown PCAP option %s", pcap.c_str());
     }
@@ -210,6 +218,26 @@ int ue_stack_lte::init(const stack_args_t& args_)
       stack_logger.error("Can not open pcap file %s", args.pkt_trace.nas_pcap.filename.c_str());
     }
   }
+
+  if (args.pkt_trace.pdcp_e_pcap.enable) {
+    if (pdcp_e_pcap.open(args.pkt_trace.pdcp_e_pcap.filename.c_str()) == SRSRAN_SUCCESS) {
+      pdcp.start_e_pcap(&pdcp_e_pcap);
+      stack_logger.info("Open PDCP pcap file %s", args.pkt_trace.pdcp_e_pcap.filename.c_str());
+    } else {
+      stack_logger.error("Can not open pcap file %s", args.pkt_trace.pdcp_e_pcap.filename.c_str());
+    }
+  }
+
+  if (args.pkt_trace.pdcp_p_pcap.enable) {
+    if (pdcp_p_pcap.open(args.pkt_trace.pdcp_p_pcap.filename.c_str()) == SRSRAN_SUCCESS) {
+      pdcp.start_p_pcap(&pdcp_p_pcap);
+      stack_logger.info("Open PDCP pcap file %s", args.pkt_trace.pdcp_p_pcap.filename.c_str());
+    } else {
+      stack_logger.error("Can not open pcap file %s", args.pkt_trace.pdcp_p_pcap.filename.c_str());
+    }
+  }
+
+  // TODO: Save GW packet
 
   // Init USIM first to allow early exit in case reader couldn't be found
   usim = usim_base::get_instance(&args.usim, usim_logger);
@@ -290,7 +318,15 @@ void ue_stack_lte::stop_impl()
   if (args.pkt_trace.nas_pcap.enable) {
     nas_pcap.close();
   }
-
+  if (args.pkt_trace.pdcp_e_pcap.enable) {
+    pdcp_e_pcap.close();
+  }
+  if (args.pkt_trace.pdcp_p_pcap.enable) {
+    pdcp_p_pcap.close();
+  }
+  if (args.pkt_trace.gw_pcap.enable) {
+    gw_pcap.close();
+  }
   task_sched.stop();
   get_background_workers().stop();
 }
@@ -423,7 +459,7 @@ void ue_stack_lte::write_sdu(uint32_t eps_bearer_id, srsran::unique_byte_buffer_
 {
   auto bearer = bearers.get_radio_bearer(eps_bearer_id);
 
-  auto task   = [this, eps_bearer_id, bearer](srsran::unique_byte_buffer_t& sdu) {
+  auto task = [this, eps_bearer_id, bearer](srsran::unique_byte_buffer_t& sdu) {
     // route SDU to PDCP entity
     if (bearer.rat == srsran_rat_t::lte) {
       pdcp.write_sdu(bearer.lcid, std::move(sdu));

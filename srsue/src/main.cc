@@ -165,11 +165,13 @@ static int parse_args(all_args_t* args, int argc, char* argv[])
     ("slicing.nssai-sst",     bpo::value<int>(&args->stack.nas_5g.nssai_sst)->default_value(1),  "sst of requested slice")
     ("slicing.nssai-sd",      bpo::value<int>(&args->stack.nas_5g.nssai_sd)->default_value(1),  "sd of requested slice")
 
-    ("pcap.enable", bpo::value<string>(&args->stack.pkt_trace.enable)->default_value("none"), "Enable (MAC, MAC_NR, NAS) packet captures for wireshark")
+    ("pcap.enable", bpo::value<string>(&args->stack.pkt_trace.enable)->default_value("none"), "Enable (MAC, MAC_NR, NAS, PDCP, GW) packet captures for wireshark")
     ("pcap.mac_filename", bpo::value<string>(&args->stack.pkt_trace.mac_pcap.filename)->default_value("/tmp/ue_mac.pcap"), "MAC layer capture filename")
     ("pcap.mac_nr_filename", bpo::value<string>(&args->stack.pkt_trace.mac_nr_pcap.filename)->default_value("/tmp/ue_mac_nr.pcap"), "MAC_NR layer capture filename")
     ("pcap.nas_filename", bpo::value<string>(&args->stack.pkt_trace.nas_pcap.filename)->default_value("/tmp/ue_nas.pcap"), "NAS layer capture filename")
-    
+    ("pcap.pdcp_e_filename", bpo::value<string>(&args->stack.pkt_trace.pdcp_e_pcap.filename)->default_value("/tmp/ue_pdcp_e.pcap"), "PDCP encrypted capture filename")
+    ("pcap.pdcp_p_filename", bpo::value<string>(&args->stack.pkt_trace.pdcp_p_pcap.filename)->default_value("/tmp/ue_pdcp_p.pcap"), "PDCP plaintext capture filename")
+    ("pcap.gw_filename", bpo::value<string>(&args->stack.pkt_trace.gw_pcap.filename)->default_value("/tmp/ue_gw.pcap"), "GW(IP) layer capture filename")
     ("gui.enable", bpo::value<bool>(&args->gui.enable)->default_value(false), "Enable GUI plots")
 
     ("log.rf_level", bpo::value<string>(&args->rf.log_level), "RF log level")

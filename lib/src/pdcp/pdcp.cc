@@ -26,7 +26,8 @@ namespace srsran {
 
 pdcp::pdcp(srsran::task_sched_handle task_sched_, const char* logname) :
   task_sched(task_sched_), logger(srslog::fetch_basic_logger(logname))
-{}
+{
+}
 
 pdcp::~pdcp()
 {
@@ -44,6 +45,16 @@ void pdcp::init(srsue::rlc_interface_pdcp* rlc_, srsue::rrc_interface_pdcp* rrc_
   rlc = rlc_;
   rrc = rrc_;
   gw  = gw_;
+}
+
+void pdcp::start_e_pcap(srsran::pdcp_pcap* e_pcap_)
+{
+  e_pcap = e_pcap_;
+}
+
+void pdcp::start_p_pcap(srsran::pdcp_pcap* p_pcap_)
+{
+  p_pcap = p_pcap_;
 }
 
 void pdcp::stop() {}
@@ -119,8 +130,12 @@ int pdcp::add_bearer(uint32_t lcid, const pdcp_config_t& cfg)
   // For now we create an pdcp entity lte for nr due to it's maturity
   if (cfg.rat == srsran::srsran_rat_t::lte) {
     entity.reset(new pdcp_entity_lte{rlc, rrc, gw, task_sched, logger, lcid});
+    entity->start_e_pcap(e_pcap);
+    entity->start_p_pcap(p_pcap);
   } else if (cfg.rat == srsran::srsran_rat_t::nr) {
     entity.reset(new pdcp_entity_nr{rlc, rrc, gw, task_sched, logger, lcid});
+    entity->start_e_pcap(e_pcap);
+    entity->start_p_pcap(p_pcap);
   }
 
   if (not entity->configure(cfg)) {

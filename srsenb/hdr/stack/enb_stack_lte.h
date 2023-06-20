@@ -37,7 +37,9 @@
 
 #include "enb_stack_base.h"
 #include "srsran/common/bearer_manager.h"
+#include "srsran/common/gw_pcap.h"
 #include "srsran/common/mac_pcap_net.h"
+#include "srsran/common/pdcp_pcap.h"
 #include "srsran/interfaces/enb_interfaces.h"
 #include "srsran/srslog/srslog.h"
 
@@ -170,6 +172,9 @@ private:
   srsran::mac_pcap     mac_pcap;
   srsran::mac_pcap_net mac_pcap_net;
   srsran::s1ap_pcap    s1ap_pcap;
+  srsran::pdcp_pcap    pdcp_e_pcap;
+  srsran::pdcp_pcap    pdcp_p_pcap;
+  srsran::gw_pcap      gw_pcap;
 
   // task handling
   srsran::task_scheduler    task_sched;

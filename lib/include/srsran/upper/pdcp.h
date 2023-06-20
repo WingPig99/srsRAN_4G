@@ -23,6 +23,7 @@
 #define SRSRAN_PDCP_H
 
 #include "srsran/common/common.h"
+#include "srsran/common/pdcp_pcap.h"
 #include "srsran/common/task_scheduler.h"
 #include "srsran/interfaces/ue_pdcp_interfaces.h"
 #include "srsran/upper/pdcp_entity_lte.h"
@@ -37,6 +38,8 @@ public:
   virtual ~pdcp();
   void init(srsue::rlc_interface_pdcp* rlc_, srsue::rrc_interface_pdcp* rrc_, srsue::gw_interface_pdcp* gw_);
   void stop();
+  void start_e_pcap(srsran::pdcp_pcap* e_pcap_);
+  void start_p_pcap(srsran::pdcp_pcap* p_pcap_);
 
   // Stack interface
   bool is_lcid_enabled(uint32_t lcid);
@@ -79,11 +82,13 @@ public:
   void reset_metrics();
 
 private:
-  srsue::rlc_interface_pdcp* rlc    = nullptr;
-  srsue::rrc_interface_pdcp* rrc    = nullptr;
-  srsue::gw_interface_pdcp*  gw     = nullptr;
+  srsue::rlc_interface_pdcp* rlc = nullptr;
+  srsue::rrc_interface_pdcp* rrc = nullptr;
+  srsue::gw_interface_pdcp*  gw  = nullptr;
   srsran::task_sched_handle  task_sched;
   srslog::basic_logger&      logger;
+  srsran::pdcp_pcap*         e_pcap = nullptr;
+  srsran::pdcp_pcap*         p_pcap = nullptr;
 
   using pdcp_map_t = std::map<uint16_t, std::unique_ptr<pdcp_entity_base> >;
   pdcp_map_t pdcp_array, pdcp_array_mrb;

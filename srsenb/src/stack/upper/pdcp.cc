@@ -29,7 +29,8 @@ namespace srsenb {
 
 pdcp::pdcp(srsran::task_sched_handle task_sched_, srslog::basic_logger& logger_) :
   task_sched(task_sched_), logger(logger_)
-{}
+{
+}
 
 void pdcp::init(rlc_interface_pdcp* rlc_, rrc_interface_pdcp* rrc_, gtpu_interface_pdcp* gtpu_)
 {
@@ -46,11 +47,23 @@ void pdcp::stop()
   users.clear();
 }
 
+void pdcp::start_e_pcap(srsran::pdcp_pcap* e_pcap_)
+{
+  e_pcap = e_pcap_;
+}
+
+void pdcp::start_p_pcap(srsran::pdcp_pcap* p_pcap_)
+{
+  p_pcap = p_pcap_;
+}
+
 void pdcp::add_user(uint16_t rnti)
 {
   if (users.count(rnti) == 0) {
     unique_rnti_ptr<srsran::pdcp> obj = make_rnti_obj<srsran::pdcp>(rnti, task_sched, logger.id().c_str());
     obj->init(&users[rnti].rlc_itf, &users[rnti].rrc_itf, &users[rnti].gtpu_itf);
+    obj->start_e_pcap(e_pcap);
+    obj->start_p_pcap(p_pcap);
     users[rnti].rlc_itf.rnti  = rnti;
     users[rnti].gtpu_itf.rnti = rnti;
     users[rnti].rrc_itf.rnti  = rnti;

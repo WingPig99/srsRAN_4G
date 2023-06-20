@@ -41,6 +41,9 @@ typedef struct {
   pcap_args_t mac_pcap;
   pcap_args_t mac_nr_pcap;
   pcap_args_t nas_pcap;
+  pcap_args_t pdcp_e_pcap;
+  pcap_args_t pdcp_p_pcap;
+  pcap_args_t gw_pcap;
 } pkt_trace_args_t;
 
 typedef struct {

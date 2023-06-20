@@ -48,7 +48,9 @@ set(SOURCES arch_select.cc
             time_prof.cc
             version.c
             zuc.cc
-            s3g.cc)
+            s3g.cc
+            pdcp_pcap.cc
+            gw_pcap.cc)
 
 # Avoid warnings caused by libmbedtls about deprecated functions
 set_source_files_properties(security.cc PROPERTIES COMPILE_FLAGS -Wno-deprecated-declarations)

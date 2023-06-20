@@ -151,6 +151,11 @@ void parse_args(all_args_t* args, int argc, char* argv[])
     ("pcap.ngap_enable",   bpo::value<bool>(&args->nr_stack.ngap_pcap.enable)->default_value(false),         "Enable NGAP packet captures for wireshark")
     ("pcap.ngap_filename", bpo::value<string>(&args->nr_stack.ngap_pcap.filename)->default_value("/tmp/enb_ngap.pcap"), "NGAP layer capture filename")
     ("pcap.mac_net_enable", bpo::value<bool>(&args->stack.mac_pcap_net.enable)->default_value(false),         "Enable MAC network captures")
+    ("pcap.pdcp_enable",     bpo::value<bool>(&args->stack.pdcp_e_pcap.enable)->default_value(false),                      "Enable PDCP packet captures for wireshark")
+    ("pcap.pdcp_e_filename", bpo::value<string>(&args->stack.pdcp_e_pcap.filename)->default_value("/tmp/enb_pdcp_e.pcap"), "PDCP encrypt packets capture filename")
+    ("pcap.pdcp_p_filename", bpo::value<string>(&args->stack.pdcp_p_pcap.filename)->default_value("/tmp/enb_pdcp_p.pcap"), "PDCP plaintext packets capture filename")
+    ("pcap.gw_enable",       bpo::value<bool>(&args->stack.gw_pcap.enable)->default_value(false),                      "Enable GW(IP) packet captures for wireshark")
+    ("pcap.gw_filename",     bpo::value<string>(&args->stack.gw_pcap.filename)->default_value("/tmp/enb_gw.pcap"),     "GW(IP) encrypt packets capture filename")
     ("pcap.bind_ip", bpo::value<string>(&args->stack.mac_pcap_net.bind_ip)->default_value("0.0.0.0"),         "Bind IP address for MAC network trace")
     ("pcap.bind_port", bpo::value<uint16_t>(&args->stack.mac_pcap_net.bind_port)->default_value(5687),        "Bind port for MAC network trace")
     ("pcap.client_ip", bpo::value<string>(&args->stack.mac_pcap_net.client_ip)->default_value("127.0.0.1"),     "Client IP address for MAC network trace")
@@ -628,6 +633,7 @@ int main(int argc, char* argv[])
 
   srsran_debug_handle_crash(argc, argv);
   parse_args(&args, argc, argv);
+  args.stack.pdcp_p_pcap.enable = args.stack.pdcp_e_pcap.enable;
 
   // Setup the default log sink.
   srslog::set_default_sink(

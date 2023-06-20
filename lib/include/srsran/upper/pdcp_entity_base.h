@@ -26,6 +26,7 @@
 #include "srsran/common/buffer_pool.h"
 #include "srsran/common/common.h"
 #include "srsran/common/interfaces_common.h"
+#include "srsran/common/pdcp_pcap.h"
 #include "srsran/common/security.h"
 #include "srsran/common/task_scheduler.h"
 #include "srsran/common/threads.h"
@@ -73,6 +74,9 @@ public:
   bool is_active() { return active; }
   bool is_srb() { return cfg.rb_type == PDCP_RB_IS_SRB; }
   bool is_drb() { return cfg.rb_type == PDCP_RB_IS_DRB; }
+
+  void start_e_pcap(srsran::pdcp_pcap* pcap_) { e_pcap = pcap_; }
+  void start_p_pcap(srsran::pdcp_pcap* pcap_) { p_pcap = pcap_; }
 
   // RRC interface
   void enable_integrity(srsran_direction_t direction = DIRECTION_TXRX)
@@ -147,6 +151,9 @@ public:
 protected:
   srslog::basic_logger&     logger;
   srsran::task_sched_handle task_sched;
+
+  srsran::pdcp_pcap* e_pcap = nullptr;
+  srsran::pdcp_pcap* p_pcap = nullptr;
 
   bool               active               = false;
   uint32_t           lcid                 = 0;
