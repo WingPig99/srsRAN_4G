@@ -558,6 +558,8 @@ if (EXTRA_TERM_TIMEOUT_S)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSRSRAN_TERM_TIMEOUT_S=${EXTRA_TERM_TIMEOUT_S}")
 endif (EXTRA_TERM_TIMEOUT_S)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-array-bounds -Wno-stringop-overflow -Wno-stringop-overread")
+
 message(STATUS "CMAKE_C_FLAGS is ${CMAKE_C_FLAGS}")
 message(STATUS "CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
 
